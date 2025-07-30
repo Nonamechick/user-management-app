@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { Button, Table, Tooltip, OverlayTrigger } from 'react-bootstrap';
-import { useTable, useSortBy } from '@tanstack/react-table';
+import { useReactTable, getCoreRowModel, getSortedRowModel } from '@tanstack/react-table';
 import ReactTooltip from 'react-tooltip';
 
 function UserTable({ token, setToken }) {
@@ -50,14 +50,14 @@ function UserTable({ token, setToken }) {
     () => [
       {
         id: 'selection',
-        Header: () => (
+        header: () => (
           <input
             type="checkbox"
             checked={selectedIds.length === users.length}
             onChange={(e) => setSelectedIds(e.target.checked ? users.map(u => u.id) : [])}
           />
         ),
-        Cell: ({ row }) => (
+        cell: ({ row }) => (
           <input
             type="checkbox"
             checked={selectedIds.includes(row.original.id)}
@@ -67,24 +67,26 @@ function UserTable({ token, setToken }) {
           />
         ),
       },
-      { Header: 'Name', accessor: 'name' },
-      { Header: 'Email', accessor: 'email' },
+      { header: 'Name', accessorKey: 'name' },
+      { header: 'Email', accessorKey: 'email' },
       {
-        Header: 'Last seen',
-        accessor: 'last_login',
-        Cell: ({ value }) => value ? new Date(value).toLocaleString() : 'Never',
+        header: 'Last seen',
+        accessorKey: 'last_login',
+        cell: ({ getValue }) => getValue() ? new Date(getValue()).toLocaleString() : 'Never',
       },
     ],
     [selectedIds, users]
   );
 
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-  } = useTable({ columns, data: users }, useSortBy);
+  const table = useReactTable({
+    data: users,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      sorting: [],
+    },
+  });
 
   return (
     <div>
@@ -102,32 +104,29 @@ function UserTable({ token, setToken }) {
         </div>
         <input type="text" className="form-control w-25" placeholder="Filter" />
       </div>
-      <Table {...getTableProps()} striped bordered hover>
+      <Table striped bordered hover>
         <thead>
-          {headerGroups.map(headerGroup => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
+          {table.getHeaderGroups().map(headerGroup => (
+            <tr key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map(column => (
-                <th {...column.getHeaderProps(column.getSortByToggleProps())}>
-                  {column.render('Header')}
-                  <span>{column.isSorted ? (column.isSortedDesc ? ' ↓' : ' ↑') : ''}</span>
+                <th key={column.id} {...column.getHeaderProps(column.getSortByToggleProps())}>
+                  {column.columnDef.header}
+                  <span>{column.getIsSorted() ? (column.getIsSorted() === 'desc' ? ' ↓' : ' ↑') : ''}</span>
                 </th>
               ))}
             </tr>
           ))}
         </thead>
-        <tbody {...getTableBodyProps()}>
-          {rows.map(row => {
-            prepareRow(row);
-            return (
-              <tr {...row.getRowProps()}>
-                {row.cells.map(cell => (
-                  <td {...cell.getCellProps()} className="align-middle">
-                    {cell.render('Cell')}
-                  </td>
-                ))}
-              </tr>
-            );
-          })}
+        <tbody>
+          {table.getRowModel().rows.map(row => (
+            <tr key={row.id} {...row.getRowProps()}>
+              {row.getVisibleCells().map(cell => (
+                <td key={cell.id} {...cell.getCellProps()} className="align-middle">
+                  {cell.renderCell ? cell.renderCell() : cell.renderValue()}
+                </td>
+              ))}
+            </tr>
+          ))}
         </tbody>
       </Table>
       <ReactTooltip />
