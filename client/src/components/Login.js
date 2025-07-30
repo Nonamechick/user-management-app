@@ -32,7 +32,7 @@ function Login({ setToken }) {
         <Form.Check type="checkbox" label="Remember me" className="mb-3" />
         <Button variant="primary" type="submit" className="w-100">Sign In</Button>
         <p className="text-center mt-3">
-          Don't have an account? <a href="/register">Sign up</a> | <a href="#">Forgot password?</a>
+          Don't have an account? <a href="/register">Sign up</a> | Forgot password?
         </p>
       </Form>
     </div>

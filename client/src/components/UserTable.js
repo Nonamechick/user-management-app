@@ -11,7 +11,7 @@ function UserTable({ token, setToken }) {
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [fetchUsers]);
 
   const fetchUsers = async () => {
     try {
