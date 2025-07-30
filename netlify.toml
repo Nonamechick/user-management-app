@@ -1,0 +1,10 @@
+[build]
+command = "cd client && npm install && npm run build && cd ../functions && npm install"
+publish = "client/build"
+functions = "functions"
+[dev]
+command = "cd client && npm start"
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
