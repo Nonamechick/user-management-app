@@ -3,7 +3,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { Button, Table, Tooltip, OverlayTrigger } from 'react-bootstrap';
 import { useReactTable, getCoreRowModel, getSortedRowModel } from '@tanstack/react-table';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 
 function UserTable({ token, setToken }) {
   const [users, setUsers] = useState([]);
